@@ -2,12 +2,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:simple_note/utils/constants.dart';
 
-class AddNote extends StatefulWidget {
+class AddOrEditNote extends StatefulWidget {
   @override
-  _AddNoteState createState() => _AddNoteState();
+  _AddOrEditNoteState createState() => _AddOrEditNoteState();
 }
 
-class _AddNoteState extends State<AddNote> {
+class _AddOrEditNoteState extends State<AddOrEditNote> {
   final _noteController = TextEditingController();
   final _titleController = TextEditingController();
   bool _validateTitle = false;
@@ -19,10 +19,8 @@ class _AddNoteState extends State<AddNote> {
     setState(() {
       if (_titleController.text.isEmpty) {
         _validateTitle = true;
-        // _validateTitle = false;
       } else if (_noteController.text.isEmpty) {
         _validateNote = true;
-        // _validateNote = false;
       } else {
         _validateTitle = false;
         _validateNote = false;
@@ -34,9 +32,16 @@ class _AddNoteState extends State<AddNote> {
     });
   }
 
+  String _appBarTitle = 'Add Note';
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
   @override
   void dispose() {
-    //dispose the controllers when the Widget dispose
+    //dispose the controllers when disposing the Widget
     _noteController.dispose();
     _titleController.dispose();
     super.dispose();
@@ -44,9 +49,10 @@ class _AddNoteState extends State<AddNote> {
 
   @override
   Widget build(BuildContext context) {
+    noteEditing(context);
     return Scaffold(
       appBar: AppBar(
-        title: Text('Add Note'),
+        title: Text(_appBarTitle),
         backgroundColor: Colors.blue,
       ),
       body: Container(
@@ -63,7 +69,6 @@ class _AddNoteState extends State<AddNote> {
               decoration: InputDecoration(
                 border: InputBorder.none,
                 hintText: 'Title',
-
                 errorText: _validateTitle ? 'Title is required' : null,
               ),
             ),
@@ -83,7 +88,6 @@ class _AddNoteState extends State<AddNote> {
               ),
             ),
             Container(
-
               margin: EdgeInsets.only(bottom: 20),
               child: RaisedButton(
                 color: Colors.blue,
@@ -104,5 +108,16 @@ class _AddNoteState extends State<AddNote> {
         ),
       ),
     );
+  }
+
+  void noteEditing(BuildContext context) {
+    Map updateNote = ModalRoute.of(context).settings.arguments;
+    if (updateNote != null) {
+      setState(() {
+        _titleController.text = updateNote[Constants.TITLE];
+        _noteController.text = updateNote[Constants.NOTE];
+        _appBarTitle = updateNote[Constants.APP_BAR_TITLE];
+      });
+    }
   }
 }

@@ -2,8 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:simple_note/model/notes.dart';
 import 'package:simple_note/utils/db_operations.dart';
-import 'package:simple_note/utils/route_operations.dart';
-
+import 'package:simple_note/utils/routing.dart';
 
 class Home extends StatefulWidget {
   @override
@@ -13,17 +12,11 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   List<Notes> list; // List<Notes>();
 
-
-
-
-
   @override
   Widget build(BuildContext context) {
-
     if (list == null) {
       list = List<Notes>();
-        _populateListView();
-
+      _populateListView();
     }
     return Scaffold(
       appBar: AppBar(
@@ -32,9 +25,9 @@ class _HomeState extends State<Home> {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           setState(() {
-            RouteOperations.addNewNote(
+            Routing.addNote(
               context: context,
-              updateListView: _populateListView,
+              reloadNote: _populateListView,
             );
           });
         },
@@ -49,7 +42,7 @@ class _HomeState extends State<Home> {
             key: Key(key),
             onDismissed: (direction) {
               setState(() {
-                RouteOperations.deleteNote(
+                Routing.deleteNote(
                   list: list,
                   index: index,
                 );
@@ -60,38 +53,54 @@ class _HomeState extends State<Home> {
             ),
             child: Card(
               child: ListTile(
-                  onLongPress: () {
-                    setState(() {
-                      final snack = Scaffold.of(context);
-                      snack.showSnackBar(
-                        SnackBar(
-                          content: Text(
-                            'Swipe left/right to delete note',
-                            style: TextStyle(
-                              fontSize: 15,
-                            ),
-                          ),
-                          action: SnackBarAction(
-                            label: 'OK',
-                            onPressed: snack.hideCurrentSnackBar,
+                onLongPress: () {
+                  setState(() {
+                    final snack = Scaffold.of(context);
+                    snack.showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          'Swipe left/right to delete note',
+                          style: TextStyle(
+                            fontSize: 15,
                           ),
                         ),
-                      );
-                    });
-                  },
-                  title: Text(
-                    list[index].title,
-                    style: TextStyle(fontSize: 30, color: Colors.green[900]),
+                        action: SnackBarAction(
+                          label: 'OK',
+                          onPressed: snack.hideCurrentSnackBar,
+                        ),
+                      ),
+                    );
+                  });
+                },
+                title: Text(
+                  list[index].title,
+                  style: TextStyle(fontSize: 30, color: Colors.green[900]),
+                ),
+                onTap: () {
+                  setState(() {
+                    Routing.readContent(
+                      index: index,
+                      context: context,
+                      note: list,
+                    );
+                  });
+                },
+                trailing: GestureDetector(
+                  child: Icon(
+                    Icons.edit,
+                    color: Colors.blue,
                   ),
                   onTap: () {
                     setState(() {
-                      RouteOperations.readContent(
-                        index: index,
-                        context: context,
-                        list: list,
-                      );
+                      Routing.editNote(
+                          context: context,
+                          index: index,
+                          note: list,
+                          reloadNote: _populateListView);
                     });
-                  }),
+                  },
+                ),
+              ),
             ),
           );
         },
@@ -99,13 +108,11 @@ class _HomeState extends State<Home> {
     );
   }
 
-
-  void _populateListView()  {
+  void _populateListView() {
     DBOperations.selectNotes().then((value) {
       setState(() {
         list = value;
       });
-
     });
   }
 }

@@ -20,7 +20,7 @@ class DBOperations {
 
     List<Map<String, dynamic>> map = await db.query(
       Constants.TABLE_NAME,
-      orderBy: '${Constants.ID} desc',
+      orderBy: '${Constants.ID} desc',//last item will come first base on this sort
     );
     return List.generate(
       map.length,
